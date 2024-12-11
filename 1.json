@@ -1,0 +1,24 @@
+[
+  // Stage 1: Perform a $lookup to join with the comments collection
+  {
+    $lookup: {
+      from: "comments",         // Join with the 'comments' collection
+      localField: "_id",        // Match the '_id' in the 'movies' collection
+      foreignField: "movie_id", // Match the 'movie_id' in the 'comments' collection
+      as: "comments"            // Output array name
+    }
+  },
+  // Stage 2: Project required fields
+  {
+    $project: {
+      _id: 0,                 
+      title: 1,                 // Include movie title
+      comments: {               // Include only the required fields from the comments
+        name: 1,
+        email: 1,
+        text: 1,
+        date: 1
+      }
+    }
+  }
+]

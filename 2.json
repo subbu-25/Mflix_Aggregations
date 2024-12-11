@@ -1,0 +1,21 @@
+[
+  // Stage 1: Lookup comments for each movie
+  {
+    $lookup: {
+      from: "comments",        // Join with the 'comments' collection
+      localField: "_id",       // Match '_id' in 'movies'
+      foreignField: "movie_id", // Match 'movie_id' in 'comments'
+      as: "comments"           // Output array name
+    }
+  },
+  // Stage 2: Project title and count the number of comments, ensuring field order
+  {
+    $project: {
+      _id: 0,                  // Exclude _id
+      title: 1,                // Include title first
+      commentCount: {          // Include comment count second
+        $size: "$comments"
+      }
+    }
+  }
+]

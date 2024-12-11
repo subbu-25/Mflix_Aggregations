@@ -1,0 +1,65 @@
+[
+  {
+    $match: {
+      year: {
+        $lt: 1950
+      },
+      // Only include movies released before 1950
+      "imdb.rating": {
+        $gte: 7.0
+      } // IMDb rating is 7.0 or higher
+    }
+  },
+  {
+    $lookup: {
+      from: "comments",
+      // Join with the "comments" collection
+      localField: "_id",
+      // Match movie _id
+      foreignField: "movie_id",
+      // Match with movie_id in comments
+      as: "comments" // Output array name
+    }
+  },
+  {
+    $addFields: {
+      comments: {
+        $slice: [
+          {
+            $sortArray: {
+              input: "$comments",
+              sortBy: {
+                date: 1
+              } // Sort comments by the date field in ascending order
+            }
+          },
+          2 // Take the first 2 sorted comments
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,  
+      title: 1,
+      // Include movie title
+      releaseYear: "$year",
+      // Include release year
+      genres: 1,
+      // Include genres
+      imdbRating: "$imdb.rating",
+      // Include IMDb rating
+      comments: {
+        $map: {
+          input: "$comments",
+          // Transform the comments array
+          as: "comment",
+          in: {
+            name: "$$comment.name",
+            text: "$$comment.text"
+          }
+        }
+      }
+    }
+  }
+]

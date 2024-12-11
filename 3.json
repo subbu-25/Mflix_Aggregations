@@ -1,0 +1,36 @@
+[
+  {
+    $project: {
+      title: 1,                   // Include title
+      imdbRating: "$imdb.rating"  // Include IMDb rating
+    }
+  },
+  {
+    $match: {
+      imdbRating: { $ne: ""}   // Ensure IMDb rating is not null or missing
+    }
+  },
+  {
+    $sort: { imdbRating: -1 }     // Sort by IMDb rating in descending order
+  },
+  {
+    $limit: 5                     // Select top 5 movies
+  },
+  {
+    $lookup: {
+      from: "comments",           // Join with the comments collection
+      localField: "_id",          // Match on _id field from movies
+      foreignField: "movie_id",   // Match on movie_id field from comments
+      as: "comments"              // Output array name
+    }
+  },
+  {
+    $project: {
+      
+      _id:0,
+      title: 1,                   // Include title
+      imdbRating: 1,              // Include IMDb rating
+      commentCount: { $size: "$comments" } // Count the number of comments
+    }
+  }
+]
